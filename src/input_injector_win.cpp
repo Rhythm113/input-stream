@@ -170,9 +170,30 @@ void press_key(const std::string& key) {
         }
     }
 
+    // For system-intercepted combos (e.g. Ctrl+Shift+Escape opening Task Manager),
+    // Windows grabs focus before our modifier key-up events are processed, leaving
+    // them "stuck". A small delay lets the OS finish handling the hotkey first.
+    if (!modifiers.empty()) {
+        Sleep(50);
+    }
+
     // Release modifiers (reverse order)
     for (auto rit = modifiers.rbegin(); rit != modifiers.rend(); ++rit) {
         send_key(*rit, false);
+    }
+
+    // Safety: always flush all common modifier keys to prevent any from staying
+    // stuck (e.g. when Task Manager or UAC steals focus mid-combo)
+    if (!modifiers.empty()) {
+        Sleep(10);
+        send_key(VK_LCONTROL, false);
+        send_key(VK_RCONTROL, false);
+        send_key(VK_LSHIFT,   false);
+        send_key(VK_RSHIFT,   false);
+        send_key(VK_LMENU,    false);
+        send_key(VK_RMENU,    false);
+        send_key(VK_LWIN,     false);
+        send_key(VK_RWIN,     false);
     }
 }
 

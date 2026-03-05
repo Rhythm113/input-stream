@@ -390,6 +390,9 @@ static const char* HTML_PAGE = R"HTML(
     toastTimer = setTimeout(() => t.classList.remove('show'), 800);
   }
 
+  // Grab keyboard input early so all handlers can blur it
+  const kbInput = document.getElementById('kbInput');
+
   // ---- TRACKPAD ----
   const trackpad = document.getElementById('trackpad');
   let tpActive = false;
@@ -411,6 +414,7 @@ static const char* HTML_PAGE = R"HTML(
 
   trackpad.addEventListener('touchstart', function(e) {
     e.preventDefault();
+    kbInput.blur();
     fingerCount = e.touches.length;
     const t = e.touches[0];
     lastX = t.clientX; lastY = t.clientY;
@@ -476,6 +480,7 @@ static const char* HTML_PAGE = R"HTML(
 
   // Mouse fallback for desktop testing
   trackpad.addEventListener('mousedown', function(e) {
+    kbInput.blur();
     lastX = e.clientX; lastY = e.clientY;
     tpActive = true; moved = false;
     tapStart = Date.now();
@@ -510,14 +515,17 @@ static const char* HTML_PAGE = R"HTML(
 
   // ---- MOUSE BUTTONS ----
   document.getElementById('btnLeft').addEventListener('click', function() {
+    kbInput.blur();
     post('/api/mouse', { dx: 0, dy: 0, action: 'click' });
     showToast('Left Click');
   });
   document.getElementById('btnRight').addEventListener('click', function() {
+    kbInput.blur();
     post('/api/mouse', { dx: 0, dy: 0, action: 'rightclick' });
     showToast('Right Click');
   });
   document.getElementById('btnMiddle').addEventListener('click', function() {
+    kbInput.blur();
     post('/api/mouse', { dx: 0, dy: 0, action: 'middleclick' });
     showToast('Middle Click');
   });
@@ -528,6 +536,7 @@ static const char* HTML_PAGE = R"HTML(
 
   scrollStrip.addEventListener('touchstart', function(e) {
     e.preventDefault();
+    kbInput.blur();
     scrollActive = true;
     scrollLastY = e.touches[0].clientY;
     scrollStrip.classList.add('active');
@@ -551,7 +560,6 @@ static const char* HTML_PAGE = R"HTML(
   });
 
   // ---- KEYBOARD INPUT ----
-  const kbInput = document.getElementById('kbInput');
 
   kbInput.addEventListener('input', function(e) {
     const text = kbInput.value;
